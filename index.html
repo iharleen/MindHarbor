@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MINDHARBOR — Student Wellness & Habit Tracker</title>
+  <meta name="description" content="A private, client-side student wellness sanctuary for tracking moods, habits, daily check-ins, journals, and personal goals.">
+  <meta name="theme-color" content="#7865A6">
+
+  <!-- Google Fonts: Plus Jakarta Sans & Newsreader -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Phosphor Icons CDN -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="app-shell">
+    <!-- ====================================================================
+         APP SIDEBAR NAVIGATION
+         ==================================================================== -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo-wrap">
+          <div class="brand-icon-box">
+            <i class="ph ph-waves"></i>
+          </div>
+          <div class="brand-title-box">
+            <h1>MindHarbor</h1>
+            <span>Student Sanctuary</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <span class="nav-category-label">Overview</span>
+        <a class="sidebar-nav-link active" data-target-tab="dashboard">
+          <i class="ph ph-squares-four"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <span class="nav-category-label">Daily Tracking</span>
+        <a class="sidebar-nav-link" data-target-tab="mood">
+          <i class="ph ph-heart"></i>
+          <span>Mood & Calendar</span>
+        </a>
+        <a class="sidebar-nav-link" data-target-tab="habits">
+          <i class="ph ph-check-circle"></i>
+          <span>Habit Streaks</span>
+        </a>
+        <a class="sidebar-nav-link" data-target-tab="checkin">
+          <i class="ph ph-heartbeat"></i>
+          <span>Daily Check-In</span>
+        </a>
+
+        <span class="nav-category-label">Reflect & Grow</span>
+        <a class="sidebar-nav-link" data-target-tab="journal">
+          <i class="ph ph-book-bookmark"></i>
+          <span>Private Journal</span>
+        </a>
+        <a class="sidebar-nav-link" data-target-tab="goals">
+          <i class="ph ph-target"></i>
+          <span>Wellness Goals</span>
+        </a>
+        <a class="sidebar-nav-link" data-target-tab="analytics">
+          <i class="ph ph-chart-line-up"></i>
+          <span>Analytics</span>
+        </a>
+
+        <span class="nav-category-label">Preferences</span>
+        <a class="sidebar-nav-link" data-target-tab="settings">
+          <i class="ph ph-gear"></i>
+          <span>Profile & Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user-pill" data-target-tab="settings">
+          <div class="user-avatar-circle user-display-avatar">S</div>
+          <div class="sidebar-user-info">
+            <div class="user-display-name">Mindful Scholar</div>
+            <div class="user-display-school">University Campus</div>
+          </div>
+          <i class="ph ph-caret-right text-muted"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         MAIN APP CONTAINER
+         ==================================================================== -->
+    <main class="app-main">
+      <!-- Top App Bar -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn-mobile-menu" id="btn-mobile-menu" aria-label="Open Navigation">
+            <i class="ph ph-list"></i>
+          </button>
+          <div class="topbar-privacy-badge">
+            <i class="ph ph-shield-check"></i>
+            <span>Local & Private Storage</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button type="button" class="btn-icon" id="btn-toggle-theme" title="Toggle Theme (Dawn / Night)">
+            <i class="ph ph-moon-bold"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary-soft" id="btn-quick-log">
+            <i class="ph ph-plus-circle"></i>
+            <span>Log Mood</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- View Containers Body -->
+      <div class="content-body">
+
+        <!-- ================================================================
+             1. PERSONALIZED DASHBOARD VIEW
+             ================================================================ -->
+        <section class="app-view-section active-view" id="view-dashboard">
+          <div class="dash-welcome-card">
+            <div class="dash-welcome-row">
+              <div>
+                <h2 class="dash-greeting-line" id="dash-greeting-text">Good morning, Scholar</h2>
+                <p class="text-secondary">Welcome to your mindful anchor. Here is your daily wellness snapshot.</p>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-secondary" onclick="App.switchTab('checkin')">
+                  <i class="ph ph-sparkle"></i> Daily Check-In
+                </button>
+              </div>
+            </div>
+
+            <div class="dash-affirmation-box">
+              <div class="dash-affirmation-content">
+                <p id="dash-affirmation-text">“You don’t have to carry the whole semester in one day. Focus on this single breath.”</p>
+                <span id="dash-affirmation-author">— Campus Mindfulness</span>
+              </div>
+              <button type="button" class="btn-icon" id="btn-shuffle-affirmation" title="New Affirmation">
+                <i class="ph ph-arrows-clockwise"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Alert Check-in Shortcut -->
+          <div id="dash-checkin-alert"></div>
+
+          <!-- Dashboard Grid Row 1 -->
+          <div class="dash-grid-2">
+            <!-- Today's Mood Snapshot -->
+            <div class="card">
+              <div class="dash-card-header">
+                <h3><i class="ph ph-heart"></i> Today's Mood</h3>
+                <span class="badge-pill cat-badge" id="dash-today-date">Today</span>
+              </div>
+              <div id="dash-mood-status-box"></div>
+            </div>
+
+            <!-- Today's Habit Quick Checklist -->
+            <div class="card">
+              <div class="dash-card-header">
+                <h3><i class="ph ph-check-square"></i> Habits Momentum</h3>
+                <button class="btn-xs btn-outline" onclick="App.switchTab('habits')">View All</button>
+              </div>
+              <div id="dash-habits-quick-list"></div>
+              <div class="dash-progress-wrap">
+                <div class="dash-progress-meta">
+                  <span>Today's Progress</span>
+                  <span id="dash-habit-progress-percent">0%</span>
+                </div>
+                <div class="dash-progress-bar-bg">
+                  <div class="dash-progress-bar-fill" id="dash-habit-progress-bar" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid Row 2 -->
+          <div class="dash-grid-2">
+            <!-- Active Wellness Goals -->
+            <div class="card">
+              <div class="dash-card-header">
+                <h3><i class="ph ph-target"></i> Weekly Goals Focus</h3>
+                <button class="btn-xs btn-outline" onclick="App.switchTab('goals')">Manage</button>
+              </div>
+              <div id="dash-goals-snippet"></div>
+            </div>
+
+            <!-- Recent Journal Preview -->
+            <div class="card">
+              <div class="dash-card-header">
+                <h3><i class="ph ph-book-open"></i> Recent Reflection</h3>
+                <button class="btn-xs btn-outline" onclick="JournalModule.openEditorModal()">+ New Entry</button>
+              </div>
+              <div id="dash-journal-snippet"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             2 & 3. DAILY MOOD TRACKER, CALENDAR & HISTORY VIEW
+             ================================================================ -->
+        <section class="app-view-section" id="view-mood">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2>Mood Tracker & Calendar</h2>
+              <p>Tune into your emotional climate. One mindful record per day to illuminate patterns.</p>
+            </div>
+          </div>
+
+          <div class="mood-tracker-layout">
+            <!-- Left: Mood Logging Form -->
+            <div class="card">
+              <div id="mood-existing-banner" class="alert-box alert-info" style="display: none;"></div>
+
+              <form id="mood-entry-form">
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="mood-entry-date">Entry Date</label>
+                    <input type="date" id="mood-entry-date" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Current State</label>
+                    <div id="mood-score-label" style="font-weight: 700; font-size: 0.95rem; padding-top: 8px;">Balanced (3/5)</div>
+                    <input type="hidden" id="mood-score-input" value="3">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Select Mood Score (1 to 5 Scale)</label>
+                  <div class="mood-score-btn-group">
+                    <button type="button" class="mood-score-btn" data-score="1">
+                      <span class="mood-emoji">⚡</span>
+                      <span class="mood-score-num">1</span>
+                      <span class="mood-name">Overwhelmed</span>
+                    </button>
+                    <button type="button" class="mood-score-btn" data-score="2">
+                      <span class="mood-emoji">🌧️</span>
+                      <span class="mood-score-num">2</span>
+                      <span class="mood-name">Low</span>
+                    </button>
+                    <button type="button" class="mood-score-btn" data-score="3">
+                      <span class="mood-emoji">⚖️</span>
+                      <span class="mood-score-num">3</span>
+                      <span class="mood-name">Balanced</span>
+                    </button>
+                    <button type="button" class="mood-score-btn selected" data-score="4">
+                      <span class="mood-emoji">🌿</span>
+                      <span class="mood-score-num">4</span>
+                      <span class="mood-name">Good</span>
+                    </button>
+                    <button type="button" class="mood-score-btn" data-score="5">
+                      <span class="mood-emoji">✨</span>
+                      <span class="mood-score-num">5</span>
+                      <span class="mood-name">Thriving</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Emotional tags -->
+                <div class="form-group">
+                  <label class="form-label">Emotions Present Today (Pick all that apply)</label>
+                  <div class="tags-selector-container" id="emotion-tags-container">
+                    <span class="pill-tag" data-tag="Calm">Calm</span>
+                    <span class="pill-tag" data-tag="Hopeful">Hopeful</span>
+                    <span class="pill-tag" data-tag="Motivated">Motivated</span>
+                    <span class="pill-tag" data-tag="Focused">Focused</span>
+                    <span class="pill-tag" data-tag="Energetic">Energetic</span>
+                    <span class="pill-tag" data-tag="Grateful">Grateful</span>
+                    <span class="pill-tag" data-tag="Stressed">Stressed</span>
+                    <span class="pill-tag" data-tag="Anxious">Anxious</span>
+                    <span class="pill-tag" data-tag="Lonely">Lonely</span>
+                    <span class="pill-tag" data-tag="Fatigued">Fatigued</span>
+                    <span class="pill-tag" data-tag="Overwhelmed">Overwhelmed</span>
+                    <span class="pill-tag" data-tag="Proud">Proud</span>
+                  </div>
+                </div>
+
+                <!-- Influencing Factors -->
+                <div class="form-group">
+                  <label class="form-label">Main Influences / Life Factors</label>
+                  <div class="tags-selector-container" id="factor-tags-container">
+                    <span class="pill-tag" data-tag="Academics">Academics</span>
+                    <span class="pill-tag" data-tag="Sleep">Sleep</span>
+                    <span class="pill-tag" data-tag="Health">Physical Health</span>
+                    <span class="pill-tag" data-tag="Social">Social & Friends</span>
+                    <span class="pill-tag" data-tag="Finances">Finances</span>
+                    <span class="pill-tag" data-tag="Personal">Personal Routine</span>
+                    <span class="pill-tag" data-tag="Weather">Weather</span>
+                  </div>
+                </div>
+
+                <!-- Sliders for Sleep & Energy -->
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="mood-sleep-hours">Sleep Duration</label>
+                    <div class="range-slider-wrap">
+                      <input type="range" id="mood-sleep-hours" min="3" max="12" step="0.5" value="7.5" class="range-slider">
+                      <span class="range-val-badge" id="mood-sleep-val">7.5 hrs</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="mood-energy-level">Energy Level (1-5)</label>
+                    <div class="range-slider-wrap">
+                      <input type="range" id="mood-energy-level" min="1" max="5" step="1" value="4" class="range-slider">
+                      <span class="range-val-badge" id="mood-energy-val">4/5</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Notes / Reflection -->
+                <div class="form-group">
+                  <label class="form-label" for="mood-note-input">Daily Mood Reflection (Optional)</label>
+                  <textarea id="mood-note-input" class="form-textarea" placeholder="What shaped your feelings today? Any academic breakthroughs, stressors, or gentle moments?"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                  <button type="submit" class="btn btn-primary" id="mood-form-submit-btn">
+                    <i class="ph ph-heart"></i> Save Mood Entry
+                  </button>
+                  <button type="button" class="btn btn-danger-outline" id="mood-form-delete-btn" style="display: none;">
+                    <i class="ph ph-trash"></i> Delete
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Right: Interactive Calendar Grid -->
+            <div>
+              <div class="calendar-card mb-4">
+                <div class="calendar-nav-bar">
+                  <h3 class="calendar-month-title" id="cal-month-title">Month Year</h3>
+                  <div class="d-flex gap-1">
+                    <button type="button" class="btn-icon" id="cal-prev-month" title="Previous Month"><i class="ph ph-caret-left"></i></button>
+                    <button type="button" class="btn-xs btn-outline" id="cal-today-btn">Today</button>
+                    <button type="button" class="btn-icon" id="cal-next-month" title="Next Month"><i class="ph ph-caret-right"></i></button>
+                  </div>
+                </div>
+
+                <div class="calendar-grid" id="mood-calendar-grid"></div>
+              </div>
+
+              <!-- Mood History List -->
+              <div class="card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h4 style="font-weight: 700; font-size: 1.05rem;">Mood History</h4>
+                  <select id="mood-history-filter" class="form-select" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="all">All Moods</option>
+                    <option value="5">✨ Thriving (5)</option>
+                    <option value="4">🌿 Good (4)</option>
+                    <option value="3">⚖️ Balanced (3)</option>
+                    <option value="2">🌧️ Low (2)</option>
+                    <option value="1">⚡ Overwhelmed (1)</option>
+                  </select>
+                </div>
+                <div id="mood-history-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             4. HABIT TRACKER & STREAKS VIEW
+             ================================================================ -->
+        <section class="app-view-section" id="view-habits">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2>Habit Streaks & Routines</h2>
+              <p>Build sustainable daily wellness rituals. Track continuous streaks and 30-day consistency.</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-add-habit">
+              <i class="ph ph-plus-circle"></i> Add New Habit
+            </button>
+          </div>
+
+          <!-- Summary Metric Cards -->
+          <div class="habit-summary-grid">
+            <div class="habit-summary-card">
+              <div class="label">Active Habits</div>
+              <div class="value" id="habit-summary-total">0</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">Completed Today</div>
+              <div class="value" id="habit-summary-today">0 / 0</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">Longest Active Streak</div>
+              <div class="value" id="habit-summary-top-streak">0 days</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">30-Day Completion Rate</div>
+              <div class="value" id="habit-summary-rate">0%</div>
+            </div>
+          </div>
+
+          <!-- Category filter tabs -->
+          <div class="d-flex gap-2 mb-4 flex-wrap">
+            <button class="pill-tag habit-cat-btn active" data-category="all">All Habits</button>
+            <button class="pill-tag habit-cat-btn" data-category="mind">Mind</button>
+            <button class="pill-tag habit-cat-btn" data-category="physical">Physical</button>
+            <button class="pill-tag habit-cat-btn" data-category="academic">Academic</button>
+            <button class="pill-tag habit-cat-btn" data-category="sleep">Sleep & Rest</button>
+            <button class="pill-tag habit-cat-btn" data-category="health">Health & Hydration</button>
+          </div>
+
+          <!-- Habits List Container -->
+          <div id="habits-list-container"></div>
+        </section>
+
+        <!-- ================================================================
+             5. PRIVATE JOURNAL VIEW
+             ================================================================ -->
+        <section class="app-view-section" id="view-journal">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2>Private Sanctuary Journal</h2>
+              <p>Confidential reflections, academic de-stressing, and honest feelings. Kept strictly on your device.</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-new-journal">
+              <i class="ph ph-pencil-simple"></i> Write Reflection
+            </button>
+          </div>
+
+          <!-- Client-side Privacy Notice -->
+          <div class="journal-banner-privacy">
+            <i class="ph ph-shield-check"></i>
+            <div>
+              <strong>100% Client-Side Privacy Protection</strong>
+              <p>Your journal entries are stored strictly in your browser's LocalStorage sandbox. No remote database or third-party server ever reads your thoughts.</p>
+            </div>
+          </div>
+
+          <!-- Inspiration Prompt Card -->
+          <div class="journal-prompt-card">
+            <div class="prompt-text-wrap">
+              <i class="ph ph-sparkle"></i>
+              <div>
+                <span class="prompt-tag">Mindful Writing Prompt</span>
+                <p id="journal-prompt-text">“What is one small thing that brought you comfort or made you smile today?”</p>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline" id="btn-refresh-prompt" title="New Prompt">
+                <i class="ph ph-shuffle"></i> Shuffle
+              </button>
+              <button type="button" class="btn btn-sm btn-primary-soft" id="btn-use-prompt">
+                <i class="ph ph-pencil"></i> Write with this Prompt
+              </button>
+            </div>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+            <div class="d-flex gap-2 align-items-center flex-1" style="min-width: 260px;">
+              <input type="text" id="journal-search-input" class="form-input" placeholder="Search entries by keywords, topics, or tags...">
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <select id="journal-category-filter" class="form-select" style="width: auto;">
+                <option value="all">All Categories</option>
+                <option value="Personal Reflection">Personal Reflection</option>
+                <option value="Academic Balance">Academic Balance</option>
+                <option value="Emotional Wellness">Emotional Wellness</option>
+                <option value="Habit Discovery">Habit Discovery</option>
+                <option value="Gratitude Log">Gratitude Log</option>
+              </select>
+              <span class="badge-pill cat-badge" id="journal-count-badge">0 entries</span>
+            </div>
+          </div>
+
+          <!-- Journal Entries Cards Grid -->
+          <div class="journal-entries-grid" id="journal-entries-container"></div>
+        </section>
+
+        <!-- ================================================================
+             6. DAILY WELLNESS CHECK-IN VIEW
+             ================================================================ -->
+        <section class="app-view-section" id="view-checkin">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2>Daily Wellness Check-In</h2>
+              <p>A quick 60-second review of sleep, hydration, movement, stress, and gratitude.</p>
+            </div>
+          </div>
+
+          <div class="checkin-layout">
+            <!-- Left: Checkin Form -->
+            <div class="card">
+              <div id="checkin-existing-banner" class="alert-box alert-info" style="display: none;">
+                <i class="ph ph-note-pencil"></i> You have already completed a check-in for this date. You can update it anytime.
+              </div>
+
+              <form id="checkin-form">
+                <div class="form-group">
+                  <label class="form-label" for="checkin-date-input">Check-in Date</label>
+                  <input type="date" id="checkin-date-input" class="form-input" required>
+                </div>
+
+                <!-- Water Tracker -->
+                <div class="form-group">
+                  <label class="form-label">Hydration (Glasses of Water)</label>
+                  <div class="water-tracker-counter">
+                    <button type="button" class="btn-stepper" id="checkin-water-minus"><i class="ph ph-minus"></i></button>
+                    <span class="range-val-badge" id="checkin-water-val" style="min-width: 90px; text-align: center;">4 glasses</span>
+                    <button type="button" class="btn-stepper" id="checkin-water-plus"><i class="ph ph-plus"></i></button>
+                    <div class="water-icons-row" id="checkin-water-icons"></div>
+                    <input type="hidden" id="checkin-water-input" value="4">
+                  </div>
+                </div>
+
+                <!-- Sleep -->
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="checkin-sleep-hours">Sleep Duration</label>
+                    <div class="range-slider-wrap">
+                      <input type="range" id="checkin-sleep-hours" min="3" max="12" step="0.5" value="7.5" class="range-slider">
+                      <span class="range-val-badge" id="checkin-sleep-val">7.5 hrs</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="checkin-sleep-quality">Sleep Restfulness</label>
+                    <select id="checkin-sleep-quality" class="form-select">
+                      <option value="5">⭐⭐⭐⭐⭐ Deep & Restorative</option>
+                      <option value="4" selected>⭐⭐⭐⭐ Good Rest</option>
+                      <option value="3">⭐⭐⭐ Moderate / Fair</option>
+                      <option value="2">⭐⭐ Restless / Interrupted</option>
+                      <option value="1">⭐ Exhausted / Poor</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Stress & Focus -->
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="checkin-stress-level">Academic Stress Level (1-10)</label>
+                    <div class="range-slider-wrap">
+                      <input type="range" id="checkin-stress-level" min="1" max="10" step="1" value="4" class="range-slider">
+                      <span class="range-val-badge" id="checkin-stress-val">4/10</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="checkin-focus-hours">Deep Study / Focus Hours</label>
+                    <input type="number" id="checkin-focus-hours" min="0" max="16" step="0.5" value="3.5" class="form-input">
+                  </div>
+                </div>
+
+                <!-- Physical Movement -->
+                <div class="form-group">
+                  <label class="form-label" for="checkin-activity-mins">Physical Activity / Walk (Minutes)</label>
+                  <input type="number" id="checkin-activity-mins" min="0" max="240" step="5" value="30" class="form-input">
+                </div>
+
+                <!-- Gratitude Prompt -->
+                <div class="form-group">
+                  <label class="form-label" for="checkin-gratitude">Daily Spark of Gratitude</label>
+                  <textarea id="checkin-gratitude" class="form-textarea" placeholder="Name one thing, person, or realization you are grateful for today..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="checkin-submit-btn">
+                  <i class="ph ph-check-circle"></i> Save Daily Check-In
+                </button>
+              </form>
+            </div>
+
+            <!-- Right: Check-In Logs -->
+            <div>
+              <div class="card">
+                <h4 style="font-weight: 700; margin-bottom: 16px;">Recent Check-In Logs</h4>
+                <div id="checkin-history-container"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             7. WEEKLY WELLNESS GOALS VIEW
+             ================================================================ -->
+        <section class="app-view-section" id="view-goals">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2>Weekly Wellness Goals</h2>
+              <p>Achievable targets to maintain study-life balance and prioritize physical and mental health.</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-add-goal">
+              <i class="ph ph-plus-circle"></i> Set Weekly Goal
+            </button>
+          </div>
+
+          <!-- Summary Metric Cards -->
+          <div class="habit-summary-grid">
+            <div class="habit-summary-card">
+              <div class="label">Active Goals</div>
+              <div class="value" id="goals-summary-active">0</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">Completed Goals</div>
+              <div class="value" id="goals-summary-completed">0</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">Completion Rate</div>
+              <div class="value" id="goals-summary-rate">0%</div>
+            </div>
+          </div>
+
+          <!-- Filter buttons -->
+          <div class="d-flex gap-2 mb-4">
+            <button class="pill-tag goals-filter-btn active" data-filter="all">All Goals</button>
+            <button class="pill-tag goals-filter-btn" data-filter="active">Active</button>
+            <button class="pill-tag goals-filter-btn" data-filter="completed">Completed</button>
+          </div>
+
+          <!-- Goals List Container -->
+          <div class="goals-grid" id="goals-list-container"></div>
+        </section>
+
+        <!-- ================================================================
+             8. INTERACTIVE ANALYTICS & CHARTS VIEW
+             ================================================================ -->
+        <section class="app-view-section" id="view-analytics">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2>Wellness Analytics & Trends</h2>
+              <p>Calculated entirely from your actual logged records. Clear insights into your health patterns.</p>
+            </div>
+          </div>
+
+          <!-- Informational Wellness Score Hero -->
+          <div class="wellness-score-hero-card">
+            <div class="score-circle-wrapper">
+              <svg class="score-circle-svg" viewBox="0 0 100 100">
+                <circle class="score-circle-bg" cx="50" cy="50" r="45"></circle>
+                <circle class="score-circle-bar" id="wellness-score-circle-bar" cx="50" cy="50" r="45"></circle>
+              </svg>
+              <div class="score-circle-center">
+                <span class="score-number" id="wellness-score-num">--</span>
+                <span class="score-max">/ 100</span>
+              </div>
+            </div>
+
+            <div class="score-info-block">
+              <div class="score-title-row">
+                <h3>Informational Wellness Index</h3>
+                <span class="badge-pill" id="wellness-score-badge">Balanced</span>
+              </div>
+              <p id="wellness-score-desc" class="text-secondary" style="font-size: 0.92rem;">
+                Calculated from your self-reported mood consistency (35%), habit completion rate (35%), and sleep/check-in metrics (30%).
+              </p>
+              <div class="score-disclaimer-notice">
+                <i class="ph ph-info"></i> Notice: This wellness score is an application-generated informational indicator based exclusively on your self-reported logs to help guide personal reflection. It is not a clinical assessment, medical diagnosis, or psychological evaluation.
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Key Stat Metrics -->
+          <div class="habit-summary-grid mb-4">
+            <div class="habit-summary-card">
+              <div class="label">14-Day Average Mood</div>
+              <div class="value" id="stat-avg-mood">--</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">Average Nightly Sleep</div>
+              <div class="value" id="stat-avg-sleep">--</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">Average Stress Level</div>
+              <div class="value" id="stat-avg-stress">--</div>
+            </div>
+            <div class="habit-summary-card">
+              <div class="label">Active Habit Routines</div>
+              <div class="value" id="stat-active-habits">--</div>
+            </div>
+          </div>
+
+          <!-- Chart 1: Mood Trend -->
+          <div class="chart-card mb-4">
+            <div class="chart-card-header">
+              <div>
+                <h4>Mood Score Trajectory (1-5 Scale)</h4>
+                <span class="text-muted text-xs">Evaluates daily emotional balance over time</span>
+              </div>
+              <div class="d-flex gap-1">
+                <button type="button" class="btn-xs btn-outline" id="analytics-range-7">7 Days</button>
+                <button type="button" class="btn-xs btn-primary-soft active" id="analytics-range-30">30 Days</button>
+              </div>
+            </div>
+            <div class="chart-container-box">
+              <canvas id="chart-mood-trend"></canvas>
+            </div>
+          </div>
+
+          <!-- Charts Row 2: Habit Consistency & Metric Correlation -->
+          <div class="analytics-grid-2">
+            <!-- Habit Consistency Bar Chart -->
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <div>
+                  <h4>Habit Consistency Rates</h4>
+                  <span class="text-muted text-xs">30-day completion percentage per habit</span>
+                </div>
+              </div>
+              <div class="chart-container-box">
+                <canvas id="chart-habit-consistency"></canvas>
+              </div>
+            </div>
+
+            <!-- Sleep vs Stress vs Activity Correlation -->
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <div>
+                  <h4>Sleep & Stress Correlation</h4>
+                  <span class="text-muted text-xs">How rest impacts academic tension</span>
+                </div>
+              </div>
+              <div class="chart-container-box">
+                <canvas id="chart-metrics-correlation"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart Row 3: Emotions Distribution -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div>
+                <h4>Most Frequent Feelings & Emotional States</h4>
+                <span class="text-muted text-xs">Breakdown of emotions logged across your moods</span>
+              </div>
+            </div>
+            <div class="chart-container-box" style="height: 240px;">
+              <canvas id="chart-emotions-breakdown"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             9. PROFILE & SETTINGS VIEW
+             ================================================================ -->
+        <section class="app-view-section" id="view-settings">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2>Profile & Settings</h2>
+              <p>Manage your student identity, privacy preferences, and local data backups.</p>
+            </div>
+          </div>
+
+          <div class="dash-grid-2">
+            <!-- Profile Form -->
+            <div class="card">
+              <h3 style="font-weight: 700; margin-bottom: 16px;"><i class="ph ph-user-circle"></i> Student Profile</h3>
+              <form id="settings-profile-form">
+                <div class="form-group">
+                  <label class="form-label" for="profile-name-input">Your Preferred Name</label>
+                  <input type="text" id="profile-name-input" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="profile-uni-input">College or University</label>
+                  <input type="text" id="profile-uni-input" class="form-input" required>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="profile-major-input">Academic Major / Program</label>
+                    <input type="text" id="profile-major-input" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="profile-year-select">Academic Year</label>
+                    <select id="profile-year-select" class="form-select">
+                      <option value="Freshman (1st Year)">Freshman (1st Year)</option>
+                      <option value="Sophomore (2nd Year)">Sophomore (2nd Year)</option>
+                      <option value="Junior (3rd Year)">Junior (3rd Year)</option>
+                      <option value="Senior (4th Year)">Senior (4th Year)</option>
+                      <option value="Graduate / Postgrad">Graduate / Postgrad</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i class="ph ph-floppy-disk"></i> Save Profile
+                </button>
+              </form>
+            </div>
+
+            <!-- Local Data Storage & Backup -->
+            <div class="card">
+              <h3 style="font-weight: 700; margin-bottom: 16px;"><i class="ph ph-database"></i> Data & Privacy Management</h3>
+              <p class="text-secondary text-sm mb-3">
+                MindHarbor keeps 100% of your records in your browser's private LocalStorage sandbox. Your reflections and logs never synchronize to an external cloud or third-party server.
+              </p>
+
+              <div class="d-flex flex-column gap-2 mb-4">
+                <button type="button" class="btn btn-secondary" id="btn-export-json">
+                  <i class="ph ph-download-simple"></i> Export Backup as JSON
+                </button>
+
+                <input type="file" id="import-json-file" accept=".json" style="display: none;">
+                <button type="button" class="btn btn-secondary" id="btn-trigger-import">
+                  <i class="ph ph-upload-simple"></i> Restore Backup from JSON
+                </button>
+
+                <button type="button" class="btn btn-primary-soft" id="btn-load-demo-data">
+                  <i class="ph ph-sparkle"></i> Load Rich Sample Data (Demo Mode)
+                </button>
+              </div>
+
+              <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-rose); margin-bottom: 6px;">Danger Zone</h4>
+                <p class="text-muted text-xs mb-3">Clears all stored moods, habits, journals, and goals from this browser.</p>
+                <button type="button" class="btn btn-danger-outline btn-sm" id="btn-reset-all-data">
+                  <i class="ph ph-trash"></i> Reset All Data
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campus & Student Wellness Resources Directory -->
+          <div class="card mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+              <h3 style="font-weight: 700; margin-bottom: 0;"><i class="ph ph-first-aid"></i> Student Mental Health & Helpline Directory</h3>
+              <span class="badge-pill badge-success"><i class="ph ph-shield-check"></i> Verified Helplines</span>
+            </div>
+            <p class="text-secondary text-sm mb-4">If you or a fellow student are experiencing academic distress, anxiety, or emotional overload, free and confidential support is available 24/7:</p>
+
+            <h4 style="font-size: 0.92rem; font-weight: 700; color: var(--color-sage); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">National Helplines (India)</h4>
+            <div class="dash-grid-2 mb-4">
+              <!-- Tele-MANAS -->
+              <div class="alert-box alert-success" style="align-items: flex-start;">
+                <i class="ph ph-phone-call" style="font-size: 1.5rem; margin-top: 2px;"></i>
+                <div style="flex: 1;">
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                    <strong>Tele-MANAS — National Tele Mental Health Programme</strong>
+                    <span class="badge-pill" style="background: var(--color-sage); color: #fff;">Govt of India</span>
+                  </div>
+                  <p class="text-xs mt-1">Free, confidential, 24/7 multi-language psychological support by the Ministry of Health & Family Welfare (MoHFW).</p>
+                  <p class="text-xs mt-1"><strong>Helpline:</strong> <a href="tel:14416" style="text-decoration: underline; font-weight: 700;">14416</a> or <a href="tel:18008914416" style="text-decoration: underline; font-weight: 700;">1800-891-4416</a> (Toll-Free, 24/7)</p>
+                  <p class="text-xs mt-1"><strong>Official Portal:</strong> <a href="https://telemanas.mohfw.gov.in/" target="_blank" rel="noopener noreferrer" style="color: var(--color-sage); text-decoration: underline; font-weight: 600;">telemanas.mohfw.gov.in <i class="ph ph-arrow-square-out"></i></a></p>
+                </div>
+              </div>
+
+              <!-- KIRAN Helpline -->
+              <div class="alert-box alert-info" style="align-items: flex-start;">
+                <i class="ph ph-heartbeat" style="font-size: 1.5rem; margin-top: 2px;"></i>
+                <div style="flex: 1;">
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                    <strong>KIRAN Mental Health Helpline</strong>
+                    <span class="badge-pill" style="background: var(--color-teal); color: #fff;">24/7 Toll-Free</span>
+                  </div>
+                  <p class="text-xs mt-1">Govt. of India (MSJE) dedicated 24/7 mental health helpline providing early screening, first-aid, psychological support, and distress mitigation.</p>
+                  <p class="text-xs mt-1"><strong>Toll-Free Number:</strong> <a href="tel:18005990019" style="text-decoration: underline; font-weight: 700;">1800-599-0019</a></p>
+                </div>
+              </div>
+
+              <!-- Vandrevala Foundation -->
+              <div class="alert-box alert-info" style="align-items: flex-start;">
+                <i class="ph ph-chat-circle-dots" style="font-size: 1.5rem; margin-top: 2px;"></i>
+                <div style="flex: 1;">
+                  <strong>Vandrevala Foundation for Mental Health</strong>
+                  <p class="text-xs mt-1">Free, confidential 24/7 counseling support and crisis intervention across India via phone and WhatsApp.</p>
+                  <p class="text-xs mt-1"><strong>Helpline:</strong> <a href="tel:+919999666555" style="text-decoration: underline; font-weight: 700;">+91 9999 666 555</a></p>
+                </div>
+              </div>
+
+              <!-- NIMHANS Student Support -->
+              <div class="alert-box alert-success" style="align-items: flex-start;">
+                <i class="ph ph-buildings" style="font-size: 1.5rem; margin-top: 2px;"></i>
+                <div style="flex: 1;">
+                  <strong>NIMHANS Psychosocial Support</strong>
+                  <p class="text-xs mt-1">Premier National Institute of Mental Health & Neurosciences helpline for youth and student psychosocial counsel.</p>
+                  <p class="text-xs mt-1"><strong>Helpline:</strong> <a href="tel:08046110007" style="text-decoration: underline; font-weight: 700;">080-46110007</a></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- International Resources (US-Only Section) -->
+            <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+              <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">International & Exchange Student Resources (US Only)</h4>
+              <div class="dash-grid-2">
+                <div style="background: var(--bg-sidebar); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px;">
+                  <strong style="font-size: 0.88rem; display: block; margin-bottom: 3px;">988 Suicide & Crisis Lifeline <span class="badge-pill cat-badge" style="font-size: 0.65rem;">US & Canada Only</span></strong>
+                  <p class="text-xs text-muted">Dial or text <strong>988</strong> within the United States and Canada for free, confidential, 24/7 support.</p>
+                </div>
+                <div style="background: var(--bg-sidebar); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px;">
+                  <strong style="font-size: 0.88rem; display: block; margin-bottom: 3px;">Crisis Text Line <span class="badge-pill cat-badge" style="font-size: 0.65rem;">US Only</span></strong>
+                  <p class="text-xs text-muted">Text <strong>HOME</strong> to <strong>741741</strong> (US phone numbers only) to message a volunteer Crisis Counselor.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ====================================================================
+       APP MODALS
+       ==================================================================== -->
+
+  <!-- 1. Habit Modal (Create / Edit) -->
+  <div class="app-modal" id="habit-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="habit-modal-title">Create New Wellness Habit</h3>
+        <button type="button" class="modal-close-x" aria-label="Close">&times;</button>
+      </div>
+      <form id="habit-form">
+        <div class="modal-content-body">
+          <input type="hidden" id="habit-id-input">
+          <div class="form-group">
+            <label class="form-label" for="habit-name-input">Habit Name</label>
+            <input type="text" id="habit-name-input" class="form-input" placeholder="e.g. 10-Minute Breathwork, Drink Water, Morning Walk" required>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="habit-cat-select">Category</label>
+              <select id="habit-cat-select" class="form-select">
+                <option value="Mind">Mind & Meditation</option>
+                <option value="Physical">Physical & Movement</option>
+                <option value="Academic">Academic Focus</option>
+                <option value="Sleep">Sleep Hygiene</option>
+                <option value="Health">Health & Hydration</option>
+                <option value="Social">Social Connection</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="habit-target-input">Weekly Target (Days)</label>
+              <input type="number" id="habit-target-input" min="1" max="7" value="7" class="form-input">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="habit-reminder-input">Reminder Note / Anchor Time</label>
+            <input type="text" id="habit-reminder-input" class="form-input" placeholder="e.g. 8:00 AM before classes, or right after lunch">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Save Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Goal Modal (Create / Edit) -->
+  <div class="app-modal" id="goal-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="goal-modal-title">Set Weekly Wellness Goal</h3>
+        <button type="button" class="modal-close-x" aria-label="Close">&times;</button>
+      </div>
+      <form id="goal-form">
+        <div class="modal-content-body">
+          <input type="hidden" id="goal-id-input">
+          <div class="form-group">
+            <label class="form-label" for="goal-title-input">Goal Title</label>
+            <input type="text" id="goal-title-input" class="form-input" placeholder="e.g. Sleep 7.5+ hours for 5 nights" required>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="goal-category-select">Category</label>
+              <select id="goal-category-select" class="form-select">
+                <option value="Mindfulness">Mindfulness</option>
+                <option value="Study Life Balance">Study Life Balance</option>
+                <option value="Physical Health">Physical Health</option>
+                <option value="Sleep Routine">Sleep Routine</option>
+                <option value="Digital Detox">Digital Detox</option>
+                <option value="Nutrition">Nutrition & Hydration</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="goal-target-input">Target Value</label>
+              <input type="number" id="goal-target-input" min="1" max="100" value="5" class="form-input" required>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="goal-current-input">Starting Progress</label>
+              <input type="number" id="goal-current-input" min="0" max="100" value="0" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="goal-unit-input">Unit</label>
+              <input type="text" id="goal-unit-input" class="form-input" value="sessions" placeholder="e.g. times, hours, days">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="goal-notes-input">Intention / Strategy Notes</label>
+            <input type="text" id="goal-notes-input" class="form-input" placeholder="e.g. Leave laptop outside bedroom at 10:30 PM">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Journal Editor Modal -->
+  <div class="app-modal" id="journal-editor-modal">
+    <div class="modal-dialog modal-dialog-lg">
+      <div class="modal-header">
+        <h3 id="journal-modal-title">Write Private Reflection</h3>
+        <button type="button" class="modal-close-x" aria-label="Close">&times;</button>
+      </div>
+      <form id="journal-form">
+        <div class="modal-content-body">
+          <input type="hidden" id="journal-id-input">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="journal-title-input">Title</label>
+              <input type="text" id="journal-title-input" class="form-input" placeholder="Give this reflection a title...">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="journal-date-input">Date</label>
+              <input type="date" id="journal-date-input" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="journal-category-select">Category</label>
+              <select id="journal-category-select" class="form-select">
+                <option value="Personal Reflection">Personal Reflection</option>
+                <option value="Academic Balance">Academic Balance</option>
+                <option value="Emotional Wellness">Emotional Wellness</option>
+                <option value="Habit Discovery">Habit Discovery</option>
+                <option value="Gratitude Log">Gratitude Log</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="journal-mood-select">Mood at Writing</label>
+              <select id="journal-mood-select" class="form-select">
+                <option value="5">✨ Thriving (5)</option>
+                <option value="4" selected>🌿 Good (4)</option>
+                <option value="3">⚖️ Balanced (3)</option>
+                <option value="2">🌧️ Low (2)</option>
+                <option value="1">⚡ Overwhelmed (1)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label" for="journal-content-input" style="margin-bottom: 0;">Your Private Thoughts</label>
+              <span class="badge-pill cat-badge" id="journal-word-count-badge">0 words</span>
+            </div>
+            <textarea id="journal-content-input" class="form-textarea" style="min-height: 220px;" placeholder="Write freely without judgment. How does your chest feel? What gave you energy today? What took it away?" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="journal-tags-input">Tags (comma-separated)</label>
+            <input type="text" id="journal-tags-input" class="form-input" placeholder="e.g. Midterms, Rest, Boundaries, Nature">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Save Reflection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Journal Reader Modal -->
+  <div class="app-modal" id="journal-reader-modal">
+    <div class="modal-dialog modal-dialog-lg">
+      <div class="modal-header">
+        <h3>Private Entry View</h3>
+        <button type="button" class="modal-close-x" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-content-body">
+        <!-- Rendered dynamically by JournalModule -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Mood Detail Modal (Calendar Click) -->
+  <div class="app-modal" id="mood-detail-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Mood Log Detail</h3>
+        <button type="button" class="modal-close-x" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-content-body">
+        <!-- Rendered dynamically by MoodModule -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. First-time Onboarding Modal -->
+  <div class="app-modal" id="modal-onboarding">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Welcome to MindHarbor</h3>
+      </div>
+      <form id="onboarding-form">
+        <div class="modal-content-body">
+          <p class="text-secondary text-sm mb-4">
+            Your mindful sanctuary for college life. Let's personalize your experience. All details remain safe in your browser.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="onboard-name-input">What should we call you?</label>
+            <input type="text" id="onboard-name-input" class="form-input" placeholder="e.g. Avery, Jordan, Alex" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="onboard-uni-input">Your University or College</label>
+            <input type="text" id="onboard-uni-input" class="form-input" placeholder="e.g. State University, City College" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="onboard-major-input">Major or Field of Study</label>
+            <input type="text" id="onboard-major-input" class="form-input" placeholder="e.g. Computer Science, Psychology, Arts">
+          </div>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between;">
+          <button type="button" class="btn btn-primary-soft btn-sm" id="btn-onboard-load-demo">
+            <i class="ph ph-sparkle"></i> Explore with Demo Data
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Get Started <i class="ph ph-arrow-right"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. Confirm Reset Modal -->
+  <div class="app-modal" id="modal-confirm-reset">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="color: var(--color-rose);"><i class="ph ph-warning-circle"></i> Confirm Complete Reset</h3>
+        <button type="button" class="modal-close-x" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-content-body">
+        <p class="mb-3">Are you absolutely sure you want to delete all MindHarbor data? This will permanently erase:</p>
+        <ul style="padding-left: 20px; font-size: 0.9rem; line-height: 1.7; color: var(--text-secondary);" class="mb-3">
+          <li>All daily mood logs & calendar history</li>
+          <li>All habit streaks and completions</li>
+          <li>All private journal reflections</li>
+          <li>All daily check-ins and weekly goals</li>
+        </ul>
+        <p class="text-sm font-semibold text-muted">Tip: You can export a JSON backup beforehand from Settings if you want to keep your data.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-modal-cancel">Keep My Data</button>
+        <button type="button" class="btn btn-danger" id="btn-execute-confirmed-reset">
+          <i class="ph ph-trash"></i> Yes, Delete Everything
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- JavaScript Modules in Dependency Order -->
+  <script src="js/storage.js"></script>
+  <script src="js/mood.js"></script>
+  <script src="js/habits.js"></script>
+  <script src="js/journal.js"></script>
+  <script src="js/goals.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+
